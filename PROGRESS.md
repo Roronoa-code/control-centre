@@ -13,7 +13,13 @@ Written and compiled (commit `7ee749a`, debug APK SHA-256 `fca42882a4ee5db7ed099
 - Service configuration now declares `canRetrieveWindowContent`, `flagRetrieveInteractiveWindows`, `flagReportViewIds` (needed for window inspection; disclosed in the service description). Android disables the service on this capability change; it must be re-enabled once after the update.
 - Tests: `CompanionPolicyTest` 5/5, `DomainTest` 26/26; lint 0 errors.
 
-Device status: installed; verification of Part 1 (original Samsung gestures with the service enabled), detection, the companion round trip and cleanup is in progress and recorded in `docs/companion-test-report.md` when done. Nothing below is claimed until observed.
+Installed and automatically tested on the phone (build `0.2.0-companion+be83205`, commit `be83205`; full evidence in `docs/companion-test-report.md`). With injected `input motionevent`:
+
+- Detection PASS: Quick Panel recognised by `sec_quick_panel_compose_root`; the notifications panel is correctly **not** misdetected; no handle on the launcher or in other apps.
+- Round trip PASS: Samsung's panel stays `mViewVisibility=0x0` (expanded) while the companion covers it and after the reverse swipe; zero collapse events; Samsung tiles still receive touch afterward.
+- Cleanup PASS: screen-off, native collapse and lock screen all remove our windows; the handle is suppressed on the lock screen.
+
+The earlier "panel collapses when the page opens" was an `input swipe` artifact, not the overlay; `input motionevent` (a clean stream like a finger) does not collapse it. **Physical finger testing, including ten round trips, is NOT yet done** and is the remaining gate.
 
 ## Superseded experiment: gesture interception (Stage 2, commits `d2e9875`…`6cf1d52`)
 
