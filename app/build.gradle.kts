@@ -1,5 +1,3 @@
-import java.io.ByteArrayOutputStream
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
@@ -7,13 +5,10 @@ plugins {
 
 // Short git commit the APK was built from, so an installed build maps to an exact source revision.
 fun gitShortSha(): String = runCatching {
-    val out = ByteArrayOutputStream()
-    exec {
+    providers.exec {
         commandLine("git", "rev-parse", "--short", "HEAD")
-        standardOutput = out
         isIgnoreExitValue = true
-    }
-    out.toString().trim().ifEmpty { "nogit" }
+    }.standardOutput.asText.get().trim().ifEmpty { "nogit" }
 }.getOrDefault("nogit")
 
 android {
