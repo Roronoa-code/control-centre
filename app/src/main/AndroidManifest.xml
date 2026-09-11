@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Normal permission: media volume from the visible panel activity. No overlay, network or camera permission. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ControlCentre">
+
+        <!-- Configuration only. Never part of the normal gesture path. -->
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+
+        <!-- The visible panel host. Own task, out of Recents, finished when left. -->
+        <activity
+            android:name=".ui.PanelActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:taskAffinity="com.mani.controlcentre.panel"
+            android:theme="@style/Theme.ControlCentre.Panel" />
+
+        <!-- Direct page entry points for Samsung gesture apps and shortcuts. They choose a page only. -->
+        <activity-alias
+            android:name=".access.EverydayEntry"
+            android:exported="true"
+            android:label="@string/entry_everyday"
+            android:targetActivity=".ui.PanelActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".access.ToolsEntry"
+            android:exported="true"
+            android:label="@string/entry_tools"
+            android:targetActivity=".ui.PanelActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".access.DeviceEntry"
+            android:exported="true"
+            android:label="@string/entry_device"
+            android:targetActivity=".ui.PanelActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Owns the small TYPE_ACCESSIBILITY_OVERLAY trigger windows. Bound only by the system. -->
+        <service
+            android:name=".access.PanelAccessibilityService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+    </application>
+</manifest>

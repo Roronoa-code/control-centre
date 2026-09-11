@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Control Centre</string>
+    <string name="entry_everyday">Control Centre: Everyday</string>
+    <string name="entry_tools">Control Centre: Tools</string>
+    <string name="entry_device">Control Centre: Device</string>
+    <string name="accessibility_service_description">Adds two small touch areas (top-right corner and a right-edge handle) that open the Control Centre panel with one swipe. It does not read screen content, does not filter keys and does not inject gestures. Turn it off here at any time.</string>
+    <string name="accessibility_service_summary">Gesture trigger for the Control Centre panel</string>
+</resources>

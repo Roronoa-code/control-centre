@@ -1,0 +1,28 @@
+<resources>
+    <style name="Theme.ControlCentre" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/cc_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Theme.ControlCentre.Panel">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.ControlCentre.Panel</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+
+    <style name="Animation.ControlCentre.Panel" parent="android:Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/panel_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/panel_hold</item>
+        <item name="android:activityCloseEnterAnimation">@anim/panel_hold</item>
+        <item name="android:activityCloseExitAnimation">@anim/panel_exit</item>
+        <item name="android:taskOpenEnterAnimation">@anim/panel_enter</item>
+        <item name="android:taskOpenExitAnimation">@anim/panel_hold</item>
+        <item name="android:taskCloseEnterAnimation">@anim/panel_hold</item>
+        <item name="android:taskCloseExitAnimation">@anim/panel_exit</item>
+        <item name="android:taskToFrontEnterAnimation">@anim/panel_enter</item>
+        <item name="android:taskToFrontExitAnimation">@anim/panel_hold</item>
+        <item name="android:taskToBackEnterAnimation">@anim/panel_hold</item>
+        <item name="android:taskToBackExitAnimation">@anim/panel_exit</item>
+    </style>
+</resources>

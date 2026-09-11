@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher"
+        android:shortcutId="everyday"
+        android:shortcutShortLabel="@string/entry_everyday">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.mani.controlcentre.access.EverydayEntry"
+            android:targetPackage="com.mani.controlcentre" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher"
+        android:shortcutId="tools"
+        android:shortcutShortLabel="@string/entry_tools">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.mani.controlcentre.access.ToolsEntry"
+            android:targetPackage="com.mani.controlcentre" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher"
+        android:shortcutId="device"
+        android:shortcutShortLabel="@string/entry_device">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.mani.controlcentre.access.DeviceEntry"
+            android:targetPackage="com.mani.controlcentre" />
+    </shortcut>
+</shortcuts>
