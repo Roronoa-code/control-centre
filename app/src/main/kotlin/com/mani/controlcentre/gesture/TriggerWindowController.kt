@@ -2,6 +2,7 @@ package com.mani.controlcentre.gesture
 
 import android.content.Context
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -99,6 +100,12 @@ private class TriggerView(
     init {
         if (config.showHandle) setBackgroundColor(if (config.route == Route.TOP) 0x40FFFFFF else 0x60FFFFFF)
         contentDescription = "Control Centre ${config.route.name.lowercase()} trigger"
+    }
+
+    /** Keeps the system Back gesture from stealing edge swipes that start on the handle (within the 200 dp per-edge budget). */
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        systemGestureExclusionRects = listOf(Rect(0, 0, w, h))
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
