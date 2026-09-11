@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -34,16 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mani.controlcentre.access.PageIntents
 import com.mani.controlcentre.access.PanelAccessibilityService
-import com.mani.controlcentre.core.Page
 import com.mani.controlcentre.data.Prefs
-import com.mani.controlcentre.data.TriggerSettings
 import com.mani.controlcentre.diagnostics.GestureLog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Setup, trigger toggles and a live gesture trace. Never sits between the gesture and the panel. */
+/** Setup, the experiment switch and a live trace. Nothing here opens a panel. */
 class SettingsActivity : ComponentActivity() {
     private var serviceEnabled by mutableStateOf(false)
 
@@ -57,7 +53,6 @@ class SettingsActivity : ComponentActivity() {
                     prefs = prefs,
                     serviceEnabled = serviceEnabled,
                     onOpenAccessibilitySettings = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
-                    onOpenPage = { startActivity(PageIntents.panel(this, it)) },
                 )
             }
         }
@@ -70,14 +65,9 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsScreen(
-    prefs: Prefs,
-    serviceEnabled: Boolean,
-    onOpenAccessibilitySettings: () -> Unit,
-    onOpenPage: (Page) -> Unit,
-) {
+private fun SettingsScreen(prefs: Prefs, serviceEnabled: Boolean, onOpenAccessibilitySettings: () -> Unit) {
     val scope = rememberCoroutineScope()
-    val settings by prefs.triggers.collectAsStateWithLifecycle(initialValue = TriggerSettings())
+    val companionEnabled by prefs.companionEnabled.collectAsStateWithLifecycle(initialValue = true)
     val lines by produceState(initialValue = GestureLog.snapshot()) {
         while (true) {
             value = GestureLog.snapshot()
@@ -95,45 +85,23 @@ private fun SettingsScreen(
         ) {
             Text("Control Centre", style = MaterialTheme.typography.headlineSmall)
             Text(
-                "Feasibility build. This screen is configuration only; the panel opens from the gesture, never from here.",
+                "Companion-page experiment. Open Samsung's Quick Panel as usual; a small handle appears at the right edge. Swipe it left for a blank test page, swipe right to return.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-
             Text(
-                if (serviceEnabled) "Gesture service: enabled" else "Gesture service: not enabled",
+                if (serviceEnabled) "Accessibility service: enabled" else "Accessibility service: not enabled",
                 style = MaterialTheme.typography.titleMedium,
             )
-            Text(
-                "Enable \"Control Centre\" under Settings > Accessibility > Installed apps. Nothing else is required for the gesture test.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
             Button(onClick = onOpenAccessibilitySettings) { Text("Open accessibility settings") }
-
-            SettingSwitch("Top-right pull (experimental)", settings.topEnabled) { scope.launch { prefs.setTopEnabled(it) } }
-            SettingSwitch("Right-edge handle", settings.sideEnabled) { scope.launch { prefs.setSideEnabled(it) } }
-            SettingSwitch("Left-handed (mirror to the left edge)", settings.leftHanded) { scope.launch { prefs.setLeftHanded(it) } }
-            SettingSwitch("Show trigger areas", settings.showHandles) { scope.launch { prefs.setShowHandles(it) } }
-            SettingSwitch("Pause gestures", settings.paused) { scope.launch { prefs.setPaused(it) } }
-
-            Text("Open a page directly (test only)", style = MaterialTheme.typography.titleMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Page.entries.forEach { page -> OutlinedButton(onClick = { onOpenPage(page) }) { Text(page.title) } }
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("Companion experiment", Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                Switch(checked = companionEnabled, onCheckedChange = { scope.launch { prefs.setCompanionEnabled(it) } })
             }
-
-            Text("Recent gesture log", style = MaterialTheme.typography.titleMedium)
-            lines.takeLast(25).forEach { line ->
+            Text("Recent trace", style = MaterialTheme.typography.titleMedium)
+            lines.takeLast(30).forEach { line ->
                 Text(line, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
             }
         }
-    }
-}
-
-@Composable
-private fun SettingSwitch(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Switch(checked = checked, onCheckedChange = onChange)
     }
 }

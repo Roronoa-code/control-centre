@@ -7,16 +7,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.Configuration
 import android.os.PowerManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
-import com.mani.controlcentre.core.Page
-import com.mani.controlcentre.core.Route
+import com.mani.controlcentre.companion.CompanionController
+import com.mani.controlcentre.companion.CompanionPolicy
+import com.mani.controlcentre.companion.QuickPanelDetector
+import com.mani.controlcentre.companion.ShadeObservation
 import com.mani.controlcentre.data.Prefs
-import com.mani.controlcentre.data.TriggerSettings
 import com.mani.controlcentre.diagnostics.GestureLog
-import com.mani.controlcentre.gesture.TriggerWindowController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,67 +23,77 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
- * Owns the trigger windows and launches the panel with the page chosen during the gesture.
- * It reads no screen content; the single event type in its configuration is ignored.
+ * Companion-page experiment. Creates no windows until Samsung's Quick Panel is observed open; then shows one
+ * small edge handle. Never intercepts the opening gesture. The superseded top-right/side triggers are gone.
  */
-class PanelAccessibilityService : AccessibilityService(), TriggerWindowController.Listener {
+class PanelAccessibilityService : AccessibilityService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private var windows: TriggerWindowController? = null
-    private var settings: TriggerSettings? = null
+    private var companion: CompanionController? = null
+    private var detector: QuickPanelDetector? = null
+    private var enabled = true
+    private var lastObservation: ShadeObservation? = null
     private var receiverRegistered = false
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             GestureLog.log("Service: ${intent.action?.substringAfterLast('.')}")
-            refresh()
+            if (intent.action == Intent.ACTION_SCREEN_OFF) companion?.removeAll("screen off") else evaluate("screen state")
         }
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        GestureLog.log("Service connected")
-        windows = TriggerWindowController(this, this)
-        val filter = IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_SCREEN_ON)
-            addAction(Intent.ACTION_USER_PRESENT)
-        }
-        registerReceiver(screenReceiver, filter, RECEIVER_NOT_EXPORTED)
+        GestureLog.log("Service connected (companion experiment)")
+        companion = CompanionController(this)
+        detector = QuickPanelDetector(this)
+        registerReceiver(
+            screenReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_USER_PRESENT)
+            },
+            RECEIVER_NOT_EXPORTED,
+        )
         receiverRegistered = true
         scope.launch {
-            Prefs(this@PanelAccessibilityService).triggers.collect { latest ->
-                settings = latest
-                refresh()
+            Prefs(this@PanelAccessibilityService).companionEnabled.collect { value ->
+                enabled = value
+                GestureLog.log("Companion experiment enabled=$value")
+                evaluate("preference")
             }
         }
+        evaluate("connected")
     }
 
-    /** Rebuilds the trigger windows for the current settings and lock state, never during a gesture. */
-    private fun refresh() {
-        val controller = windows ?: return
-        val latest = settings ?: return
-        if (controller.gestureActive) return
-        if (isInputAllowed()) controller.apply(latest.configs()) else controller.removeAll()
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        event ?: return
+        if (event.eventType != AccessibilityEvent.TYPE_WINDOWS_CHANGED && event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        val summary = "${AccessibilityEvent.eventTypeToString(event.eventType).removePrefix("TYPE_")} pkg=${event.packageName} cls=${event.className?.toString()?.substringAfterLast('.')} changes=0x${Integer.toHexString(event.windowChanges)}"
+        evaluate(summary)
     }
 
-    override fun isInputAllowed(): Boolean {
+    /** Re-reads the shade state and reconciles the windows. Never tears windows down mid-gesture. */
+    private fun evaluate(reason: String) {
+        val detector = detector ?: return
+        val companion = companion ?: return
+        val observation = detector.observe()
+        if (observation != lastObservation) {
+            GestureLog.log("Shade: visible=${observation.shadeVisible} quickPanel=${observation.quickPanel} ids=${observation.foundIds} title=${observation.shadeTitle} <- $reason")
+            if (observation.shadeVisible && !observation.quickPanel && lastObservation?.shadeVisible != true) {
+                GestureLog.log("Shade ids (diagnostic): ${detector.describeShade()}")
+            }
+            lastObservation = observation
+        }
         val power = getSystemService(PowerManager::class.java)
         val keyguard = getSystemService(KeyguardManager::class.java)
-        return power.isInteractive && !keyguard.isKeyguardLocked && settings?.paused != true
+        val show = CompanionPolicy.shouldShowHandle(enabled, power.isInteractive, keyguard.isKeyguardLocked, observation.quickPanel)
+        if (show) {
+            companion.showHandle()
+        } else if (!companion.gestureActive) {
+            companion.removeAll("quick panel not open (${if (keyguard.isKeyguardLocked) "locked" else reason})")
+        }
     }
-
-    override fun onPageSelected(page: Page, route: Route) {
-        GestureLog.log("Launch PanelActivity page=${page.id} route=${route.name}")
-        runCatching { startActivity(PageIntents.panel(this, page)) }
-            .onFailure { GestureLog.log("startActivity failed: $it") }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        refresh()
-    }
-
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
 
     override fun onInterrupt() = Unit
 
@@ -104,8 +113,9 @@ class PanelAccessibilityService : AccessibilityService(), TriggerWindowControlle
             runCatching { unregisterReceiver(screenReceiver) }
             receiverRegistered = false
         }
-        windows?.removeAll()
-        windows = null
+        companion?.removeAll("service $reason")
+        companion = null
+        detector = null
         GestureLog.log("Service $reason")
     }
 

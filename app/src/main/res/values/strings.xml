@@ -3,6 +3,6 @@
     <string name="entry_everyday">Control Centre: Everyday</string>
     <string name="entry_tools">Control Centre: Tools</string>
     <string name="entry_device">Control Centre: Device</string>
-    <string name="accessibility_service_description">Adds two small touch areas (top-right corner and a right-edge handle) that open the Control Centre panel with one swipe. It does not read screen content, does not filter keys and does not inject gestures. Turn it off here at any time.</string>
-    <string name="accessibility_service_summary">Gesture trigger for the Control Centre panel</string>
+    <string name="accessibility_service_description">Experimental companion page for Samsung\'s Quick Panel. While the Quick Panel is open, a small handle appears at the right edge; swiping it in shows a blank test page over the panel and swiping back removes it. To recognise the open Quick Panel the service looks at the ids of Samsung\'s System UI windows only. It does not read text, does not filter keys and does not inject gestures. Turn it off here at any time.</string>
+    <string name="accessibility_service_summary">Companion page beside the Samsung Quick Panel (experiment)</string>
 </resources>
