@@ -7,7 +7,8 @@ import org.junit.Test
 class CompanionPolicyTest {
     @Test fun quickPanelNeedsASamsungQuickPanelId() {
         assertTrue(CompanionPolicy.isQuickPanel(listOf("legacy_window_root", "sec_quick_panel_compose_root")))
-        assertTrue(CompanionPolicy.isQuickPanel(listOf("qs_frame")))
+        // Observed on the S25 Ultra: these two ids are present while the notifications panel is open.
+        assertFalse(CompanionPolicy.isQuickPanel(listOf("qs_frame", "quick_settings_container", "legacy_window_root")))
         assertFalse(CompanionPolicy.isQuickPanel(listOf("legacy_window_root", "notification_stack_scroller")))
         assertFalse(CompanionPolicy.isQuickPanel(emptyList()))
     }

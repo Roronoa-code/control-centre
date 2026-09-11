@@ -43,7 +43,8 @@ class PanelAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        GestureLog.log("Service connected (companion experiment)")
+        val version = runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull()
+        GestureLog.log("Service connected (companion experiment) build=$version")
         companion = CompanionController(this)
         detector = QuickPanelDetector(this)
         registerReceiver(

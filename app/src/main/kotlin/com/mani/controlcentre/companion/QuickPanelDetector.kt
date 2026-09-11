@@ -26,7 +26,7 @@ class QuickPanelDetector(private val service: AccessibilityService) {
         val shade = windows.firstOrNull { it.type == AccessibilityWindowInfo.TYPE_SYSTEM && isShade(it) }
             ?: return ShadeObservation(shadeVisible = false, quickPanel = false, foundIds = emptyList(), shadeTitle = null)
         val root = shade.root ?: return ShadeObservation(true, false, emptyList(), shade.title?.toString())
-        val found = (CompanionPolicy.QUICK_PANEL_IDS + CompanionPolicy.SHADE_ROOT_IDS).filter { id ->
+        val found = (CompanionPolicy.QUICK_PANEL_IDS + CompanionPolicy.DIAGNOSTIC_IDS + CompanionPolicy.SHADE_ROOT_IDS).filter { id ->
             root.findAccessibilityNodeInfosByViewId("$SYSTEM_UI:id/$id").isNotEmpty()
         }
         return ShadeObservation(true, CompanionPolicy.isQuickPanel(found), found, shade.title?.toString())

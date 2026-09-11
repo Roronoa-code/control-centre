@@ -1,7 +1,20 @@
+import java.io.ByteArrayOutputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
 }
+
+// Short git commit the APK was built from, so an installed build maps to an exact source revision.
+fun gitShortSha(): String = runCatching {
+    val out = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        standardOutput = out
+        isIgnoreExitValue = true
+    }
+    out.toString().trim().ifEmpty { "nogit" }
+}.getOrDefault("nogit")
 
 android {
     namespace = "com.mani.controlcentre"
@@ -11,8 +24,8 @@ android {
         applicationId = "com.mani.controlcentre"
         minSdk = 37
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0-companion+${gitShortSha()}"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

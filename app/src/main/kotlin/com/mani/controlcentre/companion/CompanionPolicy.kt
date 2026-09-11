@@ -2,8 +2,15 @@ package com.mani.controlcentre.companion
 
 /** Pure decisions for the companion-page experiment; unit-tested, no Android dependencies. */
 object CompanionPolicy {
-    /** View ids (without the package prefix) that only exist while Samsung's Quick Panel content is showing. */
-    val QUICK_PANEL_IDS = setOf("sec_quick_panel_compose_root", "quick_settings_container", "qs_frame")
+    /**
+     * View ids (without the package prefix) that only exist while Samsung's Quick Panel content is showing.
+     * Device finding: `qs_frame` and `quick_settings_container` are also present while the notifications
+     * panel is open, so only the Samsung compose root is exclusive.
+     */
+    val QUICK_PANEL_IDS = setOf("sec_quick_panel_compose_root")
+
+    /** Ids that are also looked up for diagnostics only; they do not decide anything. */
+    val DIAGNOSTIC_IDS = setOf("quick_settings_container", "qs_frame", "notification_stack_scroller")
 
     /** Ids that identify the shade window's content root on this firmware. */
     val SHADE_ROOT_IDS = setOf("legacy_window_root", "notification_panel")
