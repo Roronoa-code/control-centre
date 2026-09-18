@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mani</title>
+  <meta name="description" content="Mani — personal software, interfaces and experiments." />
+  <meta name="theme-color" content="#0b0b0b" />
+  <meta property="og:title" content="Mani" />
+  <meta property="og:description" content="Personal software, interfaces and experiments." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mani.fyi/" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0b0b;
+      --panel: #111111;
+      --text: #f4f4f1;
+      --muted: #9b9b96;
+      --line: rgba(255, 255, 255, 0.10);
+      --line-strong: rgba(255, 255, 255, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    main {
+      width: min(880px, calc(100% - 40px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 0 34px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .brand { font-weight: 650; }
+
+    .github {
+      color: var(--muted);
+      transition: color 160ms ease;
+    }
+
+    .github:hover,
+    .github:focus-visible {
+      color: var(--text);
+    }
+
+    .hero {
+      padding: clamp(96px, 18vh, 180px) 0 clamp(72px, 12vh, 120px);
+      max-width: 720px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(52px, 11vw, 104px);
+      line-height: 0.92;
+      letter-spacing: -0.065em;
+      font-weight: 720;
+    }
+
+    .intro {
+      margin: 28px 0 0;
+      max-width: 560px;
+      color: var(--muted);
+      font-size: clamp(18px, 2.2vw, 23px);
+      line-height: 1.45;
+      letter-spacing: -0.025em;
+    }
+
+    .projects {
+      margin-top: auto;
+      border-top: 1px solid var(--line);
+    }
+
+    .label {
+      padding: 18px 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .project {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 24px;
+      padding: 21px 0;
+      border-top: 1px solid var(--line);
+      transition: border-color 160ms ease, padding-left 160ms ease;
+    }
+
+    .project:hover,
+    .project:focus-visible {
+      border-color: var(--line-strong);
+      padding-left: 8px;
+      outline: none;
+    }
+
+    .project h2 {
+      margin: 0 0 5px;
+      font-size: 19px;
+      line-height: 1.2;
+      font-weight: 620;
+      letter-spacing: -0.025em;
+    }
+
+    .project p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-size: 20px;
+      transition: color 160ms ease, transform 160ms ease;
+    }
+
+    .project:hover .arrow,
+    .project:focus-visible .arrow {
+      color: var(--text);
+      transform: translate(3px, -3px);
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 24px;
+      color: #666661;
+      font-size: 12px;
+    }
+
+    @media (max-width: 560px) {
+      main {
+        width: min(100% - 28px, 880px);
+        padding-top: 20px;
+      }
+
+      .hero {
+        padding-top: 112px;
+        padding-bottom: 86px;
+      }
+
+      .project {
+        padding: 19px 0;
+      }
+
+      footer {
+        padding-top: 20px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a class="brand" href="/" aria-label="Mani home">mani.fyi</a>
+      <a class="github" href="https://github.com/Roronoa-code" rel="me">GitHub ↗</a>
+    </header>
+
+    <section class="hero" aria-labelledby="title">
+      <h1 id="title">Mani.</h1>
+      <p class="intro">Personal software, interfaces and experiments. A small home for the things I’m building.</p>
+    </section>
+
+    <section class="projects" aria-labelledby="current">
+      <div class="label" id="current">Current</div>
+
+      <a class="project" href="https://github.com/Roronoa-code/orbit">
+        <div>
+          <h2>Orbit</h2>
+          <p>Personal Samsung health and workout app.</p>
+        </div>
+        <span class="arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <a class="project" href="https://github.com/Roronoa-code/control-centre">
+        <div>
+          <h2>Control Centre</h2>
+          <p>Native Android control panel for One UI.</p>
+        </div>
+        <span class="arrow" aria-hidden="true">↗</span>
+      </a>
+    </section>
+
+    <footer>
+      <span>Watford · UK</span>
+      <span>mani.fyi</span>
+    </footer>
+  </main>
+</body>
+</html>
